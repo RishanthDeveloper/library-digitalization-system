@@ -3,76 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Digitalization System</title>
+    <title>Library Digitalization System | Enterprise Edition</title>
     <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Professional Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
+    <div class="app-layout">
+        <!-- Modern Sidebar -->
         <aside class="sidebar">
-            <h2>📚 Library System</h2>
-            <nav>
+            <div class="brand">
+                <i class="fa-solid fa-book-open-reader"></i>
+                <h2>LibriSync</h2>
+            </div>
+            <nav class="nav-menu">
                 <ul>
-                    <li onclick="showTab('catalog')" class="active" id="nav-catalog">Digital Catalog</li>
-                    <li onclick="showTab('manage')" id="nav-manage">Manage Books</li>
-                    <li onclick="showTab('issue')" id="nav-issue">Issue / Return</li>
+                    <li onclick="switchTab('dashboard')" class="active" id="nav-dashboard">
+                        <i class="fa-solid fa-chart-pie"></i> Dashboard
+                    </li>
+                    <li onclick="switchTab('catalog')" id="nav-catalog">
+                        <i class="fa-solid fa-magnifying-glass"></i> Digital Catalog
+                    </li>
+                    <li onclick="switchTab('manage')" id="nav-manage">
+                        <i class="fa-solid fa-book-medical"></i> Add Inventory
+                    </li>
+                    <li onclick="switchTab('issue')" id="nav-issue">
+                        <i class="fa-solid fa-handshake"></i> Issue & Return
+                    </li>
                 </ul>
             </nav>
+            <div class="user-profile">
+                <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                <div class="user-info">
+                    <p class="name">System Admin</p>
+                    <p class="role">Front End Dev</p>
+                </div>
+            </div>
         </aside>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <header class="top-header">
+                <h1 id="page-title">System Dashboard</h1>
+                <div class="header-actions">
+                    <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                </div>
+            </header>
             
-            <!-- Digital Catalog Tab -->
-            <section id="catalog" class="tab-content active">
-                <h2>Digital Catalog</h2>
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Search books by title or author..." onkeyup="renderCatalog()">
-                </div>
-                <table id="catalogTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="catalogBody">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
-            </section>
-
-            <!-- Manage Books Tab -->
-            <section id="manage" class="tab-content">
-                <h2>Add a New Book</h2>
-                <form id="addBookForm">
-                    <input type="text" id="bookTitle" placeholder="Book Title" required>
-                    <input type="text" id="bookAuthor" placeholder="Author Name" required>
-                    <button type="submit" class="btn">Add to Database</button>
-                </form>
-            </section>
-
-            <!-- Issue/Return and Fines Tab -->
-            <section id="issue" class="tab-content">
-                <h2>Issue or Return Books</h2>
-                <div class="action-grid">
-                    <div class="action-card">
-                        <h3>Issue Book</h3>
-                        <input type="number" id="issueId" placeholder="Enter Book ID" required>
-                        <button onclick="issueBook()" class="btn">Issue Book</button>
+            <div class="content-area">
+                
+                <!-- Dashboard Tab (Action-Oriented Insights) -->
+                <section id="dashboard" class="tab-view active">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon blue"><i class="fa-solid fa-swatchbook"></i></div>
+                            <div class="kpi-data">
+                                <h3>Total Volumes</h3>
+                                <p id="kpi-total">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon orange"><i class="fa-solid fa-book-bookmark"></i></div>
+                            <div class="kpi-data">
+                                <h3>Active Issues</h3>
+                                <p id="kpi-issued">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                            <div class="kpi-data">
+                                <h3>Available</h3>
+                                <p id="kpi-available">0</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="action-card">
-                        <h3>Return Book & Fines</h3>
-                        <input type="number" id="returnId" placeholder="Enter Book ID" required>
-                        <input type="number" id="daysLate" placeholder="Days Late (if any)" min="0" value="0">
-                        <button onclick="returnBook()" class="btn btn-secondary">Return Book</button>
-                        <p id="fineMessage" class="fine-text"></p>
-                    </div>
-                </div>
-            </section>
+                </section>
 
+                <!-- Digital Catalog Tab -->
+                <section id="catalog" class="tab-view">
+                    <div class="card-container">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-search search-icon"></i>
+                            <input type="text" id="searchInput" placeholder="Search by title, author, or ID..." onkeyup="renderCatalog()">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Asset ID</th>
+                                        <th>Book Title</th>
+                                        <th>Author</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="catalogBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Add Inventory Tab -->
+                <section id="manage" class="tab-view">
+                    <div class="card-container form-card">
+                        <h2><i class="fa-solid fa-plus-circle"></i> Register New Asset</h2>
+                        <form id="addBookForm">
+                            <div class="input-group">
+                                <label>Book Title</label>
+                                <input type="text" id="bookTitle" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Author Name</label>
+                                <input type="text" id="bookAuthor" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save to Database</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Issue/Return Tab -->
+                <section id="issue" class="tab-view">
+                    <div class="action-grid">
+                        <div class="card-container action-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-arrow-right-from-bracket"></i> Issue Asset</h2>
+                            </div>
+                            <div class="input-group">
+                                <label>Asset ID</label>
+                                <input type="number" id="issueId" placeholder="e.g., 101" required>
+                            </div>
+                            <button onclick="processIssue()" class="btn btn-primary w-100">Authorize Issue</button>
+                        </div>
+                        
+                        <div class="card-container action-card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-arrow-right-to-bracket"></i> Process Return</h2>
+                            </div>
+                            <div class="input-group">
+                                <label>Asset ID</label>
+                                <input type="number" id="returnId" placeholder="e.g., 101" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Days Overdue</label>
+                                <input type="number" id="daysLate" min="0" value="0">
+                            </div>
+                            <button onclick="processReturn()" class="btn btn-secondary w-100">Process Return</button>
+                            <div id="fineAlert" class="alert hidden"></div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
         </main>
     </div>
     <script src="script.js"></script>
