@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Digitalization System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h2>📚 Library System</h2>
+            <nav>
+                <ul>
+                    <li onclick="showTab('catalog')" class="active" id="nav-catalog">Digital Catalog</li>
+                    <li onclick="showTab('manage')" id="nav-manage">Manage Books</li>
+                    <li onclick="showTab('issue')" id="nav-issue">Issue / Return</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Digital Catalog Tab -->
+            <section id="catalog" class="tab-content active">
+                <h2>Digital Catalog</h2>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search books by title or author..." onkeyup="renderCatalog()">
+                </div>
+                <table id="catalogTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalogBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Manage Books Tab -->
+            <section id="manage" class="tab-content">
+                <h2>Add a New Book</h2>
+                <form id="addBookForm">
+                    <input type="text" id="bookTitle" placeholder="Book Title" required>
+                    <input type="text" id="bookAuthor" placeholder="Author Name" required>
+                    <button type="submit" class="btn">Add to Database</button>
+                </form>
+            </section>
+
+            <!-- Issue/Return and Fines Tab -->
+            <section id="issue" class="tab-content">
+                <h2>Issue or Return Books</h2>
+                <div class="action-grid">
+                    <div class="action-card">
+                        <h3>Issue Book</h3>
+                        <input type="number" id="issueId" placeholder="Enter Book ID" required>
+                        <button onclick="issueBook()" class="btn">Issue Book</button>
+                    </div>
+                    <div class="action-card">
+                        <h3>Return Book & Fines</h3>
+                        <input type="number" id="returnId" placeholder="Enter Book ID" required>
+                        <input type="number" id="daysLate" placeholder="Days Late (if any)" min="0" value="0">
+                        <button onclick="returnBook()" class="btn btn-secondary">Return Book</button>
+                        <p id="fineMessage" class="fine-text"></p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
