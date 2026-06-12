@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Digitalization System | Enterprise Edition</title>
     <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome for Professional Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-layout">
-        <!-- Modern Sidebar -->
         <aside class="sidebar">
             <div class="brand">
                 <i class="fa-solid fa-book-open-reader"></i>
@@ -36,12 +34,11 @@
                 <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
                 <div class="user-info">
                     <p class="name">System Admin</p>
-                    <p class="role">Front End Dev</p>
+                    <p class="role">Library Manager</p>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Workspace -->
         <main class="workspace">
             <header class="top-header">
                 <h1 id="page-title">System Dashboard</h1>
@@ -52,7 +49,6 @@
             
             <div class="content-area">
                 
-                <!-- Dashboard Tab (Action-Oriented Insights) -->
                 <section id="dashboard" class="tab-view active">
                     <div class="kpi-grid">
                         <div class="kpi-card">
@@ -79,12 +75,10 @@
                     </div>
                 </section>
 
-                <!-- Digital Catalog Tab -->
                 <section id="catalog" class="tab-view">
                     <div class="card-container">
                         <div class="search-wrapper">
-                            <i class="fa-solid fa-search search-icon"></i>
-                            <input type="text" id="searchInput" placeholder="Search by title, author, or ID..." onkeyup="renderCatalog()">
+                            <input type="text" id="searchInput" placeholder="Search by title, author, or ID..." onkeyup="renderCatalog()" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;">
                         </div>
                         <div class="table-responsive">
                             <table class="data-table">
@@ -97,36 +91,51 @@
                                     </tr>
                                 </thead>
                                 <tbody id="catalogBody">
-                                    <!-- Populated by JS -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- Add Inventory Tab -->
                 <section id="manage" class="tab-view">
-                    <div class="card-container form-card">
-                        <h2><i class="fa-solid fa-plus-circle"></i> Register New Asset</h2>
-                        <form id="addBookForm">
-                            <div class="input-group">
-                                <label>Book Title</label>
-                                <input type="text" id="bookTitle" required>
+                    <div class="action-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div class="card-container action-card">
+                            <div class="card-header" style="margin-bottom: 20px;">
+                                <h2><i class="fa-solid fa-plus-circle"></i> Single Asset Entry</h2>
                             </div>
-                            <div class="input-group">
-                                <label>Author Name</label>
-                                <input type="text" id="bookAuthor" required>
+                            <form id="addBookForm">
+                                <div class="input-group">
+                                    <label>Book Title</label>
+                                    <input type="text" id="bookTitle" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Author Name</label>
+                                    <input type="text" id="bookAuthor" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Save to Database</button>
+                            </form>
+                        </div>
+
+                        <div class="card-container action-card">
+                            <div class="card-header" style="margin-bottom: 10px;">
+                                <h2><i class="fa-solid fa-file-csv"></i> Bulk Asset Ingestion</h2>
                             </div>
-                            <button type="submit" class="btn btn-primary">Save to Database</button>
-                        </form>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+                                Upload a .csv file formatted as: <strong>Title, Author</strong>
+                            </p>
+                            <div class="input-group">
+                                <input type="file" id="csvUpload" accept=".csv" class="w-100" style="padding: 10px 0;">
+                            </div>
+                            <button onclick="processBulkUpload()" class="btn btn-secondary w-100">Process CSV File</button>
+                            <div id="uploadAlert" class="alert hidden" style="display: none;"></div>
+                        </div>
                     </div>
                 </section>
 
-                <!-- Issue/Return Tab -->
                 <section id="issue" class="tab-view">
-                    <div class="action-grid">
+                    <div class="action-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                         <div class="card-container action-card">
-                            <div class="card-header">
+                            <div class="card-header" style="margin-bottom: 20px;">
                                 <h2><i class="fa-solid fa-arrow-right-from-bracket"></i> Issue Asset</h2>
                             </div>
                             <div class="input-group">
@@ -137,7 +146,7 @@
                         </div>
                         
                         <div class="card-container action-card">
-                            <div class="card-header">
+                            <div class="card-header" style="margin-bottom: 20px;">
                                 <h2><i class="fa-solid fa-arrow-right-to-bracket"></i> Process Return</h2>
                             </div>
                             <div class="input-group">
@@ -149,7 +158,7 @@
                                 <input type="number" id="daysLate" min="0" value="0">
                             </div>
                             <button onclick="processReturn()" class="btn btn-secondary w-100">Process Return</button>
-                            <div id="fineAlert" class="alert hidden"></div>
+                            <div id="fineAlert" class="alert hidden" style="display: none;"></div>
                         </div>
                     </div>
                 </section>
