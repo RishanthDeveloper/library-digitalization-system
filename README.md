@@ -1,28 +1,25 @@
-# 📚 Library Digitalization System
+# 📚 LibriSync | Enterprise Library Digitalization System
 
-## Overview
-A desktop-based library management system designed to automate book management, issue/return tracking, fine calculation, and digital catalog maintenance. This project features an interactive user interface and utilizes a mock database for real-time catalog updates.
+A modern, browser-based Enterprise Resource Planning (ERP) interface designed to digitalize library asset management, track circulation, and handle bulk inventory ingestion. 
 
-## Role
-**Front End Developer**
+## ✨ Key Features
 
-## Tech Stack
-* **HTML5:** Semantic structure and layout
-* **CSS3:** Desktop-focused responsive design, custom styling, and interactive states
-* **JavaScript (Vanilla):** DOM manipulation, mock database integration (arrays), and business logic for fine calculations
+* **Dynamic Dashboard:** Real-time KPI tracking for Total Volumes, Active Issues, and Available Assets.
+* **Persistent Local Database:** Utilizes HTML5 `localStorage` to maintain inventory and circulation state across browser sessions without needing a backend server.
+* **Bulk Asset Ingestion:** Features a built-in CSV parser using the `FileReader` API, allowing administrators to upload hundreds of records instantly.
+* **Automated Circulation Logic:** Smart issue/return validation that prevents double-issuing and automatically calculates financial penalties for overdue assets.
+* **Enterprise UI/UX:** Responsive, grid-based layout featuring a professional color palette, modern typography, and FontAwesome integration.
 
-## Key Features
-* **Digital Catalog:** Real-time search functionality to filter books by title or author.
-* **Book Management:** Form to easily add new books to the digital inventory.
-* **Issue & Return Tracking:** System to manage the borrowing status of books to prevent double-issuing.
-* **Automated Fine Calculation:** Built-in logic to calculate fines based on days late during the return process.
+## 🛠️ Technology Stack
 
-## How to View
-You can view the live interactive prototype here: 
-[Insert Your GitHub Pages Link Here]
+* **Front-End:** Semantic HTML5, Vanilla CSS3 (CSS Grid/Flexbox)
+* **Logic & State:** Vanilla JavaScript (ES6+), Browser Local Storage API
+* **Icons:** FontAwesome 6
 
-## Local Setup
-If you want to run this project locally on your machine:
-1. Clone the repository: `git clone https://github.com/YourUsername/library-digitalization-system.git`
-2. Open the project folder.
-3. Open `index.html` in any modern web browser.
+## 🚀 How to Run Locally
+
+Because this system runs entirely in the browser using local storage, no server installation is required.
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/RishanthDeveloper/librisync.git](https://github.com/RishanthDeveloper/librisync.git)
