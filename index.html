@@ -1,15 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LibriSync â€” Library Digitalization System</title>
-<meta name="description" content="LibriSync â€” Enterprise Library Digitalization System" />
+<title>LibriSync - Library Digitalization System</title>
+<meta name="description" content="LibriSync - Enterprise Library Digitalization System" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -18,7 +17,7 @@
   <div class="loader-spine-stack">
     <span></span><span></span><span></span><span></span><span></span>
   </div>
-  <p>Opening LibriSyncâ€¦</p>
+  <p>Opening LibriSync...</p>
 </div>
 
 <!-- ============ TOASTS ============ -->
@@ -65,7 +64,7 @@
     </button>
     <div class="sidebar-clock" id="sidebarClock">
       <span class="clock-time">--:--</span>
-      <span class="clock-date">â€”</span>
+      <span class="clock-date">-</span>
     </div>
   </div>
 </aside>
@@ -85,7 +84,7 @@
 
     <div class="topbar-search">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" id="globalSearch" placeholder="Search books, members, ISBNâ€¦  ( / )" />
+      <input type="text" id="globalSearch" placeholder="Search books, members, ISBN... ( / )" />
       <kbd>/</kbd>
     </div>
 
@@ -171,7 +170,7 @@
         <div class="table-toolbar">
           <div class="table-search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="bookSearchInput" placeholder="Search by title, author, ISBN, rackâ€¦" />
+            <input type="text" id="bookSearchInput" placeholder="Search by title, author, ISBN, rack..." />
           </div>
           <div class="table-filters">
             <select id="filterCategory"><option value="">All categories</option></select>
@@ -252,9 +251,9 @@
               <select id="returnTxnSelect" required></select>
             </label>
             <div class="return-preview" id="returnPreview" hidden>
-              <div><span>Due date</span><strong id="rpDue">â€”</strong></div>
+              <div><span>Due date</span><strong id="rpDue">-</strong></div>
               <div><span>Days overdue</span><strong id="rpDays">0</strong></div>
-              <div><span>Fine (â‚¹5/day)</span><strong id="rpFine">â‚¹0</strong></div>
+              <div><span>Fine (&#8377;5/day)</span><strong id="rpFine">&#8377;0</strong></div>
             </div>
             <button type="submit" class="btn btn-secondary btn-block"><i class="fa-solid fa-right-to-bracket"></i> Return Book</button>
           </form>
@@ -282,7 +281,7 @@
         <div class="table-toolbar">
           <div class="table-search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="memberSearchInput" placeholder="Search members by name, email, IDâ€¦" />
+            <input type="text" id="memberSearchInput" placeholder="Search members by name, email, ID..." />
           </div>
           <div class="table-filters">
             <select id="filterMemberType">
@@ -571,6 +570,6 @@
 
 <!-- ============ SCRIPTS ============ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
