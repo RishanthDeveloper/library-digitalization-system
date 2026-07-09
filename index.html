@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LibriSync â€” Library Digitalization System</title>
+<meta name="description" content="LibriSync â€” Enterprise Library Digitalization System" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ LOADER ============ -->
+<div id="app-loader" class="app-loader">
+  <div class="loader-spine-stack">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <p>Opening LibriSyncâ€¦</p>
+</div>
+
+<!-- ============ TOASTS ============ -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-mark"><i class="fa-solid fa-book-bookmark"></i></div>
+    <div class="brand-text">
+      <span class="brand-name">LibriSync</span>
+      <span class="brand-sub">Library ERP</span>
+    </div>
+    <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Collapse sidebar">
+      <i class="fa-solid fa-angles-left"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav" id="sidebarNav">
+    <a href="#dashboard" class="nav-item active" data-route="dashboard">
+      <span class="nav-spine"></span><i class="fa-solid fa-gauge"></i><span class="nav-label">Dashboard</span>
+    </a>
+    <a href="#inventory" class="nav-item" data-route="inventory">
+      <span class="nav-spine"></span><i class="fa-solid fa-book"></i><span class="nav-label">Inventory</span>
+    </a>
+    <a href="#circulation" class="nav-item" data-route="circulation">
+      <span class="nav-spine"></span><i class="fa-solid fa-right-left"></i><span class="nav-label">Circulation</span>
+    </a>
+    <a href="#members" class="nav-item" data-route="members">
+      <span class="nav-spine"></span><i class="fa-solid fa-users"></i><span class="nav-label">Members</span>
+    </a>
+    <a href="#reports" class="nav-item" data-route="reports">
+      <span class="nav-spine"></span><i class="fa-solid fa-chart-pie"></i><span class="nav-label">Reports</span>
+    </a>
+    <a href="#settings" class="nav-item" data-route="settings">
+      <span class="nav-spine"></span><i class="fa-solid fa-gear"></i><span class="nav-label">Settings</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+      <i class="fa-solid fa-moon"></i>
+      <span class="nav-label">Dark mode</span>
+    </button>
+    <div class="sidebar-clock" id="sidebarClock">
+      <span class="clock-time">--:--</span>
+      <span class="clock-date">â€”</span>
+    </div>
+  </div>
+</aside>
+
+<div class="sidebar-scrim" id="sidebarScrim"></div>
+
+<!-- ============ MAIN ============ -->
+<div class="main-wrap">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" title="Menu"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title">
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageSubtitle">Overview of your library operations</p>
+    </div>
+
+    <div class="topbar-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="globalSearch" placeholder="Search books, members, ISBNâ€¦  ( / )" />
+      <kbd>/</kbd>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="icon-btn" id="notifBtn" title="Notifications">
+        <i class="fa-regular fa-bell"></i>
+        <span class="notif-dot" id="notifDot"></span>
+      </button>
+      <div class="admin-chip" id="adminChip">
+        <div class="avatar">AD</div>
+        <div class="admin-meta">
+          <span class="admin-name">Admin User</span>
+          <span class="admin-role">Chief Librarian</span>
+        </div>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- notification dropdown -->
+  <div class="notif-panel" id="notifPanel">
+    <div class="notif-panel-head"><span>Notifications</span><button id="clearNotifs">Clear all</button></div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+
+  <!-- ============ VIEWS ============ -->
+  <main class="content" id="content">
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <section class="view active" id="view-dashboard">
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="dash-grid">
+        <div class="card chart-card">
+          <div class="card-head">
+            <div class="card-head-title"><span class="spine-dot"></span><h3>Inventory Distribution</h3></div>
+            <span class="card-tag">By category</span>
+          </div>
+          <canvas id="chartInventoryDist" height="220"></canvas>
+        </div>
+
+        <div class="card chart-card">
+          <div class="card-head">
+            <div class="card-head-title"><span class="spine-dot"></span><h3>Monthly Issues</h3></div>
+            <span class="card-tag">Last 6 months</span>
+          </div>
+          <canvas id="chartMonthlyIssues" height="220"></canvas>
+        </div>
+
+        <div class="card chart-card">
+          <div class="card-head">
+            <div class="card-head-title"><span class="spine-dot"></span><h3>Top Categories</h3></div>
+            <span class="card-tag">By checkouts</span>
+          </div>
+          <canvas id="chartTopCategories" height="220"></canvas>
+        </div>
+
+        <div class="card activity-card">
+          <div class="card-head">
+            <div class="card-head-title"><span class="spine-dot"></span><h3>Recent Activity</h3></div>
+            <span class="card-tag" id="activityCount">0 events</span>
+          </div>
+          <ul class="timeline" id="activityTimeline"></ul>
+        </div>
+      </div>
+
+      <div class="card quick-actions-card">
+        <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Quick Actions</h3></div></div>
+        <div class="quick-actions">
+          <button class="qa-btn" data-action="add-book"><i class="fa-solid fa-plus"></i><span>Add Book</span></button>
+          <button class="qa-btn" data-action="issue-book"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Issue Book</span></button>
+          <button class="qa-btn" data-action="return-book"><i class="fa-solid fa-arrow-right-to-bracket"></i><span>Return Book</span></button>
+          <button class="qa-btn" data-action="import-csv"><i class="fa-solid fa-file-arrow-up"></i><span>Import CSV</span></button>
+          <button class="qa-btn" data-action="export-csv"><i class="fa-solid fa-file-arrow-down"></i><span>Export CSV</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- INVENTORY ---------- -->
+    <section class="view" id="view-inventory">
+      <div class="card table-card">
+        <div class="table-toolbar">
+          <div class="table-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="bookSearchInput" placeholder="Search by title, author, ISBN, rackâ€¦" />
+          </div>
+          <div class="table-filters">
+            <select id="filterCategory"><option value="">All categories</option></select>
+            <select id="filterStatus">
+              <option value="">All status</option>
+              <option value="Available">Available</option>
+              <option value="Issued">Issued</option>
+              <option value="Overdue">Overdue</option>
+              <option value="Lost">Lost</option>
+            </select>
+            <button class="btn btn-ghost" id="resetFiltersBtn"><i class="fa-solid fa-filter-circle-xmark"></i> Reset</button>
+          </div>
+          <div class="table-toolbar-actions">
+            <button class="btn btn-secondary" id="importCsvBtn"><i class="fa-solid fa-file-arrow-up"></i> Import CSV</button>
+            <button class="btn btn-secondary" id="exportCsvBtn"><i class="fa-solid fa-file-arrow-down"></i> Export CSV</button>
+            <button class="btn btn-primary" id="addBookBtn"><i class="fa-solid fa-plus"></i> Add Book</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table" id="booksTable">
+            <thead>
+              <tr>
+                <th data-sort="id">Book ID <i class="fa-solid fa-sort"></i></th>
+                <th>Cover</th>
+                <th data-sort="isbn">ISBN <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="title">Title <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="author">Author <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="category">Category <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="publisher">Publisher <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="year">Year <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="rack">Rack <i class="fa-solid fa-sort"></i></th>
+                <th data-sort="status">Status <i class="fa-solid fa-sort"></i></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="booksTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="booksEmptyState" hidden>
+            <i class="fa-solid fa-book-open"></i>
+            <h4>No books found</h4>
+            <p>Try adjusting your filters, or add a new title to the catalog.</p>
+            <button class="btn btn-primary" id="emptyAddBookBtn"><i class="fa-solid fa-plus"></i> Add Book</button>
+          </div>
+        </div>
+
+        <div class="table-footer">
+          <span id="booksResultCount">0 books</span>
+          <div class="pagination" id="booksPagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- CIRCULATION ---------- -->
+    <section class="view" id="view-circulation">
+      <div class="dash-grid two-col">
+        <div class="card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Issue a Book</h3></div></div>
+          <form class="stack-form" id="issueForm">
+            <label>Book
+              <select id="issueBookSelect" required></select>
+            </label>
+            <label>Member
+              <select id="issueMemberSelect" required></select>
+            </label>
+            <div class="form-row">
+              <label>Issue date <input type="date" id="issueDate" required></label>
+              <label>Due date <input type="date" id="dueDate" required></label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-right-from-bracket"></i> Issue Book</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Return a Book</h3></div></div>
+          <form class="stack-form" id="returnForm">
+            <label>Active transaction
+              <select id="returnTxnSelect" required></select>
+            </label>
+            <div class="return-preview" id="returnPreview" hidden>
+              <div><span>Due date</span><strong id="rpDue">â€”</strong></div>
+              <div><span>Days overdue</span><strong id="rpDays">0</strong></div>
+              <div><span>Fine (â‚¹5/day)</span><strong id="rpFine">â‚¹0</strong></div>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-block"><i class="fa-solid fa-right-to-bracket"></i> Return Book</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card table-card">
+        <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Transaction History</h3></div>
+          <span class="card-tag" id="txnCount">0 transactions</span>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Txn ID</th><th>Book</th><th>Member</th><th>Issue Date</th><th>Due Date</th><th>Return Date</th><th>Fine</th><th>Status</th></tr>
+            </thead>
+            <tbody id="txnTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- MEMBERS ---------- -->
+    <section class="view" id="view-members">
+      <div class="card table-card">
+        <div class="table-toolbar">
+          <div class="table-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="memberSearchInput" placeholder="Search members by name, email, IDâ€¦" />
+          </div>
+          <div class="table-filters">
+            <select id="filterMemberType">
+              <option value="">All types</option>
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+              <option value="Guest">Guest</option>
+            </select>
+          </div>
+          <div class="table-toolbar-actions">
+            <button class="btn btn-primary" id="addMemberBtn"><i class="fa-solid fa-user-plus"></i> Add Member</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Member ID</th><th>Name</th><th>Email</th><th>Type</th><th>Joined</th><th>Books Issued</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="membersTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="membersEmptyState" hidden>
+            <i class="fa-solid fa-user-group"></i>
+            <h4>No members found</h4>
+            <p>Add your first member to start circulation.</p>
+          </div>
+        </div>
+        <div class="table-footer">
+          <span id="membersResultCount">0 members</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- REPORTS ---------- -->
+    <section class="view" id="view-reports">
+      <div class="dash-grid">
+        <div class="card chart-card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Most Borrowed Books</h3></div></div>
+          <canvas id="chartMostBorrowed" height="240"></canvas>
+        </div>
+        <div class="card chart-card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Monthly Borrowing Trend</h3></div></div>
+          <canvas id="chartMonthlyTrend" height="240"></canvas>
+        </div>
+        <div class="card chart-card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Category Distribution</h3></div></div>
+          <canvas id="chartCategoryDist" height="240"></canvas>
+        </div>
+        <div class="card chart-card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Fine Collection</h3></div></div>
+          <canvas id="chartFineCollection" height="240"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-title"><span class="spine-dot"></span><h3>Export Reports</h3></div>
+        </div>
+        <div class="quick-actions">
+          <button class="qa-btn" id="exportBooksReport"><i class="fa-solid fa-book"></i><span>Books CSV</span></button>
+          <button class="qa-btn" id="exportMembersReport"><i class="fa-solid fa-users"></i><span>Members CSV</span></button>
+          <button class="qa-btn" id="exportTxnReport"><i class="fa-solid fa-right-left"></i><span>Transactions CSV</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- SETTINGS ---------- -->
+    <section class="view" id="view-settings">
+      <div class="dash-grid two-col">
+        <div class="card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Appearance</h3></div></div>
+          <div class="settings-row">
+            <div><strong>Dark mode</strong><p>Reduce glare in low-light study halls.</p></div>
+            <label class="switch"><input type="checkbox" id="darkModeSwitch"><span class="slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div><strong>Theme accent</strong><p>Pick the primary color used across LibriSync.</p></div>
+            <div class="swatch-row" id="themeSwatches">
+              <button class="swatch" data-color="#2563EB" style="--sw:#2563EB"></button>
+              <button class="swatch" data-color="#14B8A6" style="--sw:#14B8A6"></button>
+              <button class="swatch" data-color="#7C3AED" style="--sw:#7C3AED"></button>
+              <button class="swatch" data-color="#DB2777" style="--sw:#DB2777"></button>
+              <button class="swatch" data-color="#F59E0B" style="--sw:#F59E0B"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Data Management</h3></div></div>
+          <div class="settings-row">
+            <div><strong>Backup database</strong><p>Download all library data as a JSON snapshot.</p></div>
+            <button class="btn btn-secondary" id="backupBtn"><i class="fa-solid fa-download"></i> Backup</button>
+          </div>
+          <div class="settings-row">
+            <div><strong>Restore backup</strong><p>Restore LibriSync from a previous snapshot.</p></div>
+            <label class="btn btn-secondary file-btn">
+              <i class="fa-solid fa-upload"></i> Restore
+              <input type="file" id="restoreInput" accept="application/json" hidden>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div><strong>Reset database</strong><p>Erase all data and reseed with sample records.</p></div>
+            <button class="btn btn-danger" id="resetDbBtn"><i class="fa-solid fa-triangle-exclamation"></i> Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title"><span class="spine-dot"></span><h3>Keyboard Shortcuts</h3></div></div>
+        <div class="shortcuts-grid">
+          <div><kbd>/</kbd> Focus search</div>
+          <div><kbd>N</kbd> then <kbd>B</kbd> Add book</div>
+          <div><kbd>N</kbd> then <kbd>M</kbd> Add member</div>
+          <div><kbd>G</kbd> then <kbd>D</kbd> Go to Dashboard</div>
+          <div><kbd>G</kbd> then <kbd>I</kbd> Go to Inventory</div>
+          <div><kbd>G</kbd> then <kbd>C</kbd> Go to Circulation</div>
+          <div><kbd>G</kbd> then <kbd>M</kbd> Go to Members</div>
+          <div><kbd>G</kbd> then <kbd>R</kbd> Go to Reports</div>
+          <div><kbd>G</kbd> then <kbd>S</kbd> Go to Settings</div>
+          <div><kbd>Esc</kbd> Close modal</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- APP FOOTER -->
+  <footer class="app-footer">
+    <span>LibriSync ERP v1.0.0</span>
+    <span>&copy; 2026 Enterprise Library Systems</span>
+  </footer>
+
+</div>
+
+<!-- ============ MODALS OVERLAY ============ -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) App.closeModal()">
+  
+  <!-- BOOK MODAL -->
+  <div class="modal" id="modalBook">
+    <div class="modal-head">
+      <h3 id="bookModalTitle"><i class="fa-solid fa-book"></i> Add Book</h3>
+      <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form class="stack-form" id="bookForm">
+        <input type="hidden" id="bookFormId">
+        <div class="form-grid">
+          <label class="col-span-2">Title <span class="req">*</span>
+            <input type="text" id="bookTitle" required placeholder="e.g. The Great Gatsby">
+          </label>
+          <label>Author <span class="req">*</span>
+            <input type="text" id="bookAuthor" required placeholder="e.g. F. Scott Fitzgerald">
+          </label>
+          <label>ISBN <span class="req">*</span>
+            <input type="text" id="bookIsbn" required placeholder="e.g. 9780743273565">
+          </label>
+          <label>Category <span class="req">*</span>
+            <select id="bookCategory" required>
+              <option value="">Select category</option>
+              <option value="Fiction">Fiction</option>
+              <option value="Science">Science</option>
+              <option value="History">History</option>
+              <option value="Biography">Biography</option>
+              <option value="Technology">Technology</option>
+              <option value="Philosophy">Philosophy</option>
+            </select>
+          </label>
+          <label>Publisher
+            <input type="text" id="bookPublisher" placeholder="e.g. Scribner">
+          </label>
+          <label>Year
+            <input type="number" id="bookYear" min="1000" max="2100" placeholder="e.g. 1925">
+          </label>
+          <label>Rack Location
+            <input type="text" id="bookRack" placeholder="e.g. A-4">
+          </label>
+        </div>
+        <div class="cover-preview-row">
+          <div class="cover-preview" id="bookCoverPreview">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <label style="flex:1;">Cover Image URL
+            <input type="url" id="bookCoverUrl" placeholder="https://images.unsplash.com/... or similar" oninput="App.previewCover(this.value)">
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" onclick="App.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="bookFormSubmitBtn">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MEMBER MODAL -->
+  <div class="modal modal-sm" id="modalMember">
+    <div class="modal-head">
+      <h3 id="memberModalTitle"><i class="fa-solid fa-user-plus"></i> Add Member</h3>
+      <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form class="stack-form" id="memberForm">
+        <input type="hidden" id="memberFormId">
+        <label>Full Name <span class="req">*</span>
+          <input type="text" id="memberName" required placeholder="e.g. John Doe">
+        </label>
+        <label>Email Address <span class="req">*</span>
+          <input type="email" id="memberEmail" required placeholder="john.doe@example.com">
+        </label>
+        <div class="form-row">
+          <label>Type <span class="req">*</span>
+            <select id="memberType" required>
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+              <option value="Guest">Guest</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="memberStatus">
+              <option value="Active">Active</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" onclick="App.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="memberFormSubmitBtn">Save Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- IMPORT CSV MODAL -->
+  <div class="modal" id="modalImport">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-file-arrow-up"></i> Import Catalog from CSV</h3>
+      <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="csv-drop" id="csvDropZone">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span>Drag & drop your CSV file here, or <strong>browse files</strong></span>
+        <span class="hint">Required columns: ISBN, Title, Author, Category. Optional: Publisher, Year, Rack.</span>
+        <input type="file" id="csvFileInput" accept=".csv" style="display:none;">
+      </div>
+      
+      <div id="csvProgressArea" hidden>
+        <div class="progress-bar"><div class="progress-fill" id="csvProgressFill"></div></div>
+        <div class="settings-row" style="padding:10px 0 0;">
+          <span id="csvProgressStatus">Uploading and parsing...</span>
+          <span id="csvProgressPct">0%</span>
+        </div>
+      </div>
+
+      <div id="csvSummaryArea" hidden>
+        <div class="csv-summary">
+          <span class="csv-chip badge-available" id="csvCountValid">0 valid rows</span>
+          <span class="csv-chip badge-overdue" id="csvCountInvalid">0 invalid rows</span>
+        </div>
+        <div class="table-scroll csv-preview-scroll">
+          <table class="data-table" style="min-width:100%;">
+            <thead><tr><th>Title</th><th>Author</th><th>ISBN</th><th>Status</th></tr></thead>
+            <tbody id="csvPreviewBody"></tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="App.closeModal()">Close</button>
+        <button type="button" class="btn btn-primary" id="csvImportConfirmBtn" disabled>Import Records</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM ACTION MODAL -->
+  <div class="modal modal-sm" id="modalConfirm">
+    <div class="confirm-body">
+      <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation" id="confirmIcon"></i></div>
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="modal-actions center">
+        <button type="button" class="btn btn-ghost" onclick="App.closeModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
