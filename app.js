@@ -1,6 +1,9 @@
 // ==========================================================================
-// LibriSync — Single Page Application Logic (Backend Integrated)
+// LibriSync — Single Page Application Logic (Static / LocalStorage version)
+// No backend required. Works entirely on GitHub Pages.
 // ==========================================================================
+
+const STORAGE_KEY = "librisync_db_v1";
 
 const App = {
   // State variables
@@ -37,10 +40,10 @@ const App = {
 
   // Initialize App
   async init() {
-    console.log("LibriSync Initializing...");
-    
-    // Fetch state from server database
-    await this.loadState();
+    console.log("LibriSync Initializing (local storage mode)...");
+
+    // Load state from localStorage (seeds mock data on first run)
+    this.loadState();
 
     this.initThemes();
     this.initClock();
@@ -49,36 +52,101 @@ const App = {
     this.initFormHandlers();
     this.initCsvImport();
     this.updateUI();
-    
+
     // Hide App Loader with a delay for visual satisfaction
     setTimeout(() => {
       document.getElementById("app-loader").classList.add("hide");
-      this.showToast("Connected to SQLite backend", "success");
+      this.showToast("Loaded from local storage", "success");
     }, 600);
   },
 
-  // Load state from backend APIs
-  async loadState() {
-    try {
-      const [books, members, transactions, activities, notifications, theme] = await Promise.all([
-        fetch('/api/books').then(r => r.json()),
-        fetch('/api/members').then(r => r.json()),
-        fetch('/api/transactions').then(r => r.json()),
-        fetch('/api/activities').then(r => r.json()),
-        fetch('/api/notifications').then(r => r.json()),
-        fetch('/api/theme').then(r => r.json())
-      ]);
+  // ==========================================================================
+  // LOCAL STORAGE PERSISTENCE LAYER
+  // ==========================================================================
 
-      this.state.books = books;
-      this.state.members = members;
-      this.state.transactions = transactions;
-      this.state.activities = activities;
-      this.state.notifications = notifications;
-      this.state.theme = theme;
+  // Load state from localStorage, seeding sample data on first run
+  loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        this.state = JSON.parse(raw);
+        // Guard against partially-shaped stored data (e.g. from older versions)
+        this.state.books = this.state.books || [];
+        this.state.members = this.state.members || [];
+        this.state.transactions = this.state.transactions || [];
+        this.state.activities = this.state.activities || [];
+        this.state.notifications = this.state.notifications || [];
+        this.state.theme = this.state.theme || { darkMode: false, accentColor: "#2563EB" };
+      } else {
+        this.state = this.getSeedData();
+        this.saveState();
+      }
     } catch (err) {
-      console.error("Failed to load state from database server:", err);
-      this.showToast("Database server offline. Features disabled.", "error");
+      console.error("Failed to load state from localStorage:", err);
+      this.state = this.getSeedData();
     }
+  },
+
+  // Persist current state to localStorage
+  saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      return true;
+    } catch (err) {
+      console.error("Failed to save state to localStorage:", err);
+      this.showToast("Local storage save failed (storage may be full)", "error");
+      return false;
+    }
+  },
+
+  // Seed data — mirrors the original server.js mock database
+  getSeedData() {
+    const books = [
+      { id: "BK-001", isbn: "9780743273565", title: "The Great Gatsby", author: "F. Scott Fitzgerald", category: "Fiction", publisher: "Scribner", year: 1925, rack: "A-1", status: "Available", cover_url: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=200&auto=format&fit=crop" },
+      { id: "BK-002", isbn: "9780553380163", title: "A Brief History of Time", author: "Stephen Hawking", category: "Science", publisher: "Bantam Books", year: 1988, rack: "B-3", status: "Available", cover_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=200&auto=format&fit=crop" },
+      { id: "BK-003", isbn: "9780062316097", title: "Sapiens", author: "Yuval Noah Harari", category: "History", publisher: "Harper", year: 2011, rack: "C-2", status: "Issued", cover_url: "https://images.unsplash.com/photo-1447069387593-a5de0862481e?q=80&w=200&auto=format&fit=crop" },
+      { id: "BK-004", isbn: "9781451648539", title: "Steve Jobs", author: "Walter Isaacson", category: "Biography", publisher: "Simon & Schuster", year: 2011, rack: "D-1", status: "Available", cover_url: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=200&auto=format&fit=crop" },
+      { id: "BK-005", isbn: "9780132350884", title: "Clean Code", author: "Robert C. Martin", category: "Technology", publisher: "Prentice Hall", year: 2008, rack: "E-4", status: "Overdue", cover_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=200&auto=format&fit=crop" },
+      { id: "BK-006", isbn: "9780140449235", title: "Beyond Good and Evil", author: "Friedrich Nietzsche", category: "Philosophy", publisher: "Penguin Classics", year: 1886, rack: "F-1", status: "Available", cover_url: "https://images.unsplash.com/photo-1607968565043-36af90dde238?q=80&w=200&auto=format&fit=crop" },
+      { id: "BK-007", isbn: "9780446310789", title: "To Kill a Mockingbird", author: "Harper Lee", category: "Fiction", publisher: "J. B. Lippincott & Co.", year: 1960, rack: "A-2", status: "Available", cover_url: "" },
+      { id: "BK-008", isbn: "9780345331359", title: "Cosmos", author: "Carl Sagan", category: "Science", publisher: "Random House", year: 1980, rack: "B-1", status: "Available", cover_url: "" },
+      { id: "BK-009", isbn: "9780393317558", title: "Guns, Germs, and Steel", author: "Jared Diamond", category: "History", publisher: "W. W. Norton & Co.", year: 1997, rack: "C-1", status: "Available", cover_url: "" },
+      { id: "BK-010", isbn: "9781476708690", title: "The Innovators", author: "Walter Isaacson", category: "Technology", publisher: "Simon & Schuster", year: 2014, rack: "E-1", status: "Available", cover_url: "" }
+    ];
+
+    const members = [
+      { id: "MB-001", name: "Alice Smith", email: "alice.smith@university.edu", type: "Student", joined: "2026-01-15", books_issued: 1, status: "Active" },
+      { id: "MB-002", name: "Bob Jones", email: "bob.jones@university.edu", type: "Faculty", joined: "2025-09-01", books_issued: 1, status: "Active" },
+      { id: "MB-003", name: "Charlie Brown", email: "charlie.b@gmail.com", type: "Guest", joined: "2026-03-10", books_issued: 0, status: "Active" },
+      { id: "MB-004", name: "Diana Prince", email: "diana.prince@justice.org", type: "Student", joined: "2026-02-18", books_issued: 0, status: "Active" },
+      { id: "MB-005", name: "Evan Wright", email: "evan.wright@outlook.com", type: "Guest", joined: "2025-11-20", books_issued: 0, status: "Suspended" }
+    ];
+
+    const transactions = [
+      { id: "TXN-101", book_id: "BK-003", book_title: "Sapiens", member_id: "MB-001", member_name: "Alice Smith", issue_date: "2026-06-25", due_date: "2026-07-09", return_date: null, fine: 0, status: "Issued" },
+      { id: "TXN-102", book_id: "BK-005", book_title: "Clean Code", member_id: "MB-002", member_name: "Bob Jones", issue_date: "2026-06-10", due_date: "2026-06-24", return_date: null, fine: 45, status: "Overdue" },
+      { id: "TXN-103", book_id: "BK-001", book_title: "The Great Gatsby", member_id: "MB-003", member_name: "Charlie Brown", issue_date: "2026-06-01", due_date: "2026-06-15", return_date: "2026-06-12", fine: 0, status: "Returned" },
+      { id: "TXN-104", book_id: "BK-004", book_title: "Steve Jobs", member_id: "MB-004", member_name: "Diana Prince", issue_date: "2026-05-15", due_date: "2026-05-29", return_date: "2026-06-05", fine: 35, status: "Returned" }
+    ];
+
+    const activities = [
+      { id: 3, title: "System Initialized", time: "2026-07-03T11:00:00Z" },
+      { id: 2, title: "Book BK-005 'Clean Code' marked OVERDUE", time: "2026-07-03T09:00:00Z" },
+      { id: 1, title: "Member MB-001 issued book BK-003 'Sapiens'", time: "2026-06-25T14:30:00Z" }
+    ];
+
+    const notifications = [
+      { id: "NT-1", msg: "Book 'Clean Code' is 9 days overdue for Member Bob Jones.", time: "2026-07-03T09:00:00Z", read: false }
+    ];
+
+    return {
+      books,
+      members,
+      transactions,
+      activities,
+      notifications,
+      theme: { darkMode: false, accentColor: "#2563EB" }
+    };
   },
 
   // Routing navigation
@@ -218,7 +286,7 @@ const App = {
       toggleBtn.querySelector(".nav-label").textContent = "Dark mode";
     }
 
-    toggleBtn.onclick = async () => {
+    toggleBtn.onclick = () => {
       theme.darkMode = !theme.darkMode;
       if (theme.darkMode) {
         html.setAttribute("data-theme", "dark");
@@ -230,14 +298,14 @@ const App = {
         toggleBtn.querySelector(".nav-label").textContent = "Dark mode";
       }
       
-      await this.saveThemeToServer();
+      this.saveState();
       this.renderSettingsView();
     };
 
     // Swatches listeners
     const swatches = document.querySelectorAll(".swatch");
     swatches.forEach(swatch => {
-      swatch.addEventListener("click", async () => {
+      swatch.addEventListener("click", () => {
         const color = swatch.getAttribute("data-color");
         theme.accentColor = color;
         html.style.setProperty("--primary", color);
@@ -246,22 +314,10 @@ const App = {
         swatches.forEach(s => s.classList.remove("active"));
         swatch.classList.add("active");
         
-        await this.saveThemeToServer();
+        this.saveState();
         this.showToast(`Accent theme updated`, "info");
       });
     });
-  },
-
-  async saveThemeToServer() {
-    try {
-      await fetch('/api/theme', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.state.theme)
-      });
-    } catch (err) {
-      console.error("Failed to save theme setting to backend:", err);
-    }
   },
 
   // Helper function to shade accent colors
@@ -451,9 +507,9 @@ const App = {
     document.getElementById("restoreInput").addEventListener("change", (e) => this.restoreDatabase(e));
     
     document.getElementById("resetDbBtn").addEventListener("click", () => {
-      this.openConfirmModal("Reset Library Database?", "This will delete all current records and reload initial sample books and members. Continue?", async () => {
-        await fetch('/api/database/reset', { method: 'POST' });
-        await this.loadState();
+      this.openConfirmModal("Reset Library Database?", "This will delete all current records and reload initial sample books and members. Continue?", () => {
+        this.state = this.getSeedData();
+        this.saveState();
         this.updateUI();
         this.showToast("Database reseeded successfully", "success");
       });
@@ -466,9 +522,9 @@ const App = {
       this.closeModal();
     });
 
-    document.getElementById("clearNotifs").addEventListener("click", async () => {
-      await fetch('/api/notifications/clear', { method: 'POST' });
+    document.getElementById("clearNotifs").addEventListener("click", () => {
       this.state.notifications = [];
+      this.saveState();
       this.updateNotificationsUI();
       this.showToast("Notifications cleared", "info");
     });
@@ -583,8 +639,18 @@ const App = {
     }
   },
 
+  // Log an activity entry locally
+  logActivity(title) {
+    const nextId = this.state.activities.length > 0
+      ? Math.max(...this.state.activities.map(a => a.id || 0)) + 1
+      : 1;
+    this.state.activities.unshift({ id: nextId, title, time: new Date().toISOString() });
+    // Keep it bounded like the old "LIMIT 50" behavior
+    this.state.activities = this.state.activities.slice(0, 50);
+  },
+
   // Save Book Action
-  async handleBookFormSubmit() {
+  handleBookFormSubmit() {
     const id = document.getElementById("bookFormId").value;
     const title = document.getElementById("bookTitle").value;
     const author = document.getElementById("bookAuthor").value;
@@ -595,110 +661,91 @@ const App = {
     const rack = document.getElementById("bookRack").value;
     const coverUrl = document.getElementById("bookCoverUrl").value;
 
-    const bookData = { isbn, title, author, category, publisher, year, rack, cover_url: coverUrl };
-
     try {
       if (id) {
-        // Edit API call
-        bookData.status = this.state.books.find(b => b.id === id).status;
-        await fetch(`/api/books/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bookData)
-        });
-        
-        // Log locally
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Updated book info: '${title}'` })
-        });
-        
+        // Edit existing book
+        const existing = this.state.books.find(b => b.id === id);
+        if (!existing) {
+          this.showToast("Book not found", "error");
+          return;
+        }
+        existing.isbn = isbn;
+        existing.title = title;
+        existing.author = author;
+        existing.category = category;
+        existing.publisher = publisher;
+        existing.year = year;
+        existing.rack = rack;
+        existing.cover_url = coverUrl;
+
+        this.logActivity(`Updated book info: '${title}'`);
         this.showToast(`Book updated successfully`, "success");
       } else {
-        // Create API call
+        // Create new book
         const nextId = "BK-" + String(this.state.books.length + 1).padStart(3, '0');
-        bookData.id = nextId;
-        bookData.status = "Available";
-        
-        await fetch('/api/books', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bookData)
+        this.state.books.push({
+          id: nextId,
+          isbn, title, author, category, publisher, year, rack,
+          status: "Available",
+          cover_url: coverUrl
         });
-        
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Cataloged new book: '${title}'` })
-        });
-        
+
+        this.logActivity(`Cataloged new book: '${title}'`);
         this.showToast(`Book cataloged successfully`, "success");
       }
 
-      await this.loadState();
+      this.saveState();
       this.closeModal();
       this.updateUI();
     } catch (err) {
       console.error(err);
-      this.showToast("Server error. Action failed.", "error");
+      this.showToast("Error saving book.", "error");
     }
   },
 
   // Save Member Action
-  async handleMemberFormSubmit() {
+  handleMemberFormSubmit() {
     const id = document.getElementById("memberFormId").value;
     const name = document.getElementById("memberName").value;
     const email = document.getElementById("memberEmail").value;
     const type = document.getElementById("memberType").value;
     const status = document.getElementById("memberStatus").value;
 
-    const memberData = { name, email, type, status };
-
     try {
       if (id) {
-        await fetch(`/api/members/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(memberData)
-        });
-        
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Updated member info: '${name}'` })
-        });
-        
+        const existing = this.state.members.find(m => m.id === id);
+        if (!existing) {
+          this.showToast("Member not found", "error");
+          return;
+        }
+        existing.name = name;
+        existing.email = email;
+        existing.type = type;
+        existing.status = status;
+
+        this.logActivity(`Updated member info: '${name}'`);
         this.showToast(`Member updated`, "success");
       } else {
         const nextId = "MB-" + String(this.state.members.length + 1).padStart(3, '0');
         const today = new Date().toISOString().split('T')[0];
-        memberData.id = nextId;
-        memberData.joined = today;
-        memberData.books_issued = 0;
-        memberData.status = status || "Active";
-        
-        await fetch('/api/members', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(memberData)
+        this.state.members.push({
+          id: nextId,
+          name, email, type,
+          joined: today,
+          books_issued: 0,
+          status: status || "Active"
         });
-        
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Registered new member: '${name}'` })
-        });
-        
+
+        this.logActivity(`Registered new member: '${name}'`);
         this.showToast(`Member registered successfully`, "success");
       }
 
-      await this.loadState();
+      this.saveState();
       this.closeModal();
       this.updateUI();
     } catch (err) {
       console.error(err);
-      this.showToast("Server error. Action failed.", "error");
+      this.showToast("Error saving member.", "error");
     }
   },
 
@@ -712,20 +759,12 @@ const App = {
       return;
     }
 
-    this.openConfirmModal("Delete Book Catalog?", `Are you sure you want to delete '${book.title}'?`, async () => {
-      try {
-        await fetch(`/api/books/${bookId}`, { method: 'DELETE' });
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Deleted book catalog: '${book.title}'` })
-        });
-        await this.loadState();
-        this.updateUI();
-        this.showToast("Book deleted", "warning");
-      } catch (err) {
-        this.showToast("Server error. Delete failed.", "error");
-      }
+    this.openConfirmModal("Delete Book Catalog?", `Are you sure you want to delete '${book.title}'?`, () => {
+      this.state.books = this.state.books.filter(b => b.id !== bookId);
+      this.logActivity(`Deleted book catalog: '${book.title}'`);
+      this.saveState();
+      this.updateUI();
+      this.showToast("Book deleted", "warning");
     });
   },
 
@@ -739,25 +778,17 @@ const App = {
       return;
     }
 
-    this.openConfirmModal("Remove Member Registry?", `Are you sure you want to remove '${member.name}' from LibriSync?`, async () => {
-      try {
-        await fetch(`/api/members/${memberId}`, { method: 'DELETE' });
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Removed member: '${member.name}'` })
-        });
-        await this.loadState();
-        this.updateUI();
-        this.showToast("Member removed", "warning");
-      } catch (err) {
-        this.showToast("Server error. Action failed.", "error");
-      }
+    this.openConfirmModal("Remove Member Registry?", `Are you sure you want to remove '${member.name}' from LibriSync?`, () => {
+      this.state.members = this.state.members.filter(m => m.id !== memberId);
+      this.logActivity(`Removed member: '${member.name}'`);
+      this.saveState();
+      this.updateUI();
+      this.showToast("Member removed", "warning");
     });
   },
 
   // Issue Book Action
-  async handleIssueBookSubmit() {
+  handleIssueBookSubmit() {
     const bookId = document.getElementById("issueBookSelect").value;
     const memberId = document.getElementById("issueMemberSelect").value;
     const issueDateStr = document.getElementById("issueDate").value;
@@ -782,34 +813,37 @@ const App = {
     }
 
     const nextTxnId = "TXN-" + String(this.state.transactions.length + 101).padStart(3, '0');
-    const txnData = {
-      id: nextTxnId,
-      book_id: book.id,
-      book_title: book.title,
-      member_id: member.id,
-      member_name: member.name,
-      issue_date: issueDateStr,
-      due_date: dueDateStr
-    };
 
     try {
-      await fetch('/api/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(txnData)
+      this.state.transactions.push({
+        id: nextTxnId,
+        book_id: book.id,
+        book_title: book.title,
+        member_id: member.id,
+        member_name: member.name,
+        issue_date: issueDateStr,
+        due_date: dueDateStr,
+        return_date: null,
+        fine: 0,
+        status: "Issued"
       });
-      
-      await this.loadState();
+
+      book.status = "Issued";
+      member.books_issued = (member.books_issued || 0) + 1;
+
+      this.logActivity(`Checked out '${book.title}' to Member '${member.name}'`);
+
+      this.saveState();
       document.getElementById("issueForm").reset();
       this.updateUI();
       this.showToast("Book checked out successfully", "success");
     } catch (err) {
-      this.showToast("Server checkout failed.", "error");
+      this.showToast("Checkout failed.", "error");
     }
   },
 
   // Return Book Action
-  async handleReturnBookSubmit() {
+  handleReturnBookSubmit() {
     const txnId = document.getElementById("returnTxnSelect").value;
     const txn = this.state.transactions.find(t => t.id === txnId);
 
@@ -830,19 +864,25 @@ const App = {
     }
 
     try {
-      await fetch('/api/transactions/return', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ txn_id: txnId, return_date: todayStr, fine: finalFine })
-      });
+      txn.return_date = todayStr;
+      txn.fine = finalFine;
+      txn.status = "Returned";
 
-      await this.loadState();
+      const book = this.state.books.find(b => b.id === txn.book_id);
+      if (book) book.status = "Available";
+
+      const member = this.state.members.find(m => m.id === txn.member_id);
+      if (member) member.books_issued = Math.max(0, (member.books_issued || 0) - 1);
+
+      this.logActivity(`Book check-in returned: '${txn.book_title}'`);
+
+      this.saveState();
       document.getElementById("returnForm").reset();
       document.getElementById("returnPreview").hidden = true;
       this.updateUI();
       this.showToast(`Book returned. Fine collected: ₹${finalFine}`, "success");
     } catch (err) {
-      this.showToast("Server return action failed", "error");
+      this.showToast("Return action failed", "error");
     }
   },
 
@@ -1001,11 +1041,11 @@ const App = {
       }
     };
 
-    confirmBtn.onclick = async () => {
+    confirmBtn.onclick = () => {
       try {
         let nextNum = this.state.books.length + 1;
         for (const rec of parsedRecords) {
-          const payload = {
+          this.state.books.push({
             id: "BK-" + String(nextNum++).padStart(3, '0'),
             isbn: rec.isbn,
             title: rec.title,
@@ -1016,21 +1056,12 @@ const App = {
             rack: rec.rack,
             status: "Available",
             cover_url: ""
-          };
-          await fetch('/api/books', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
           });
         }
 
-        await fetch('/api/activities', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: `Imported ${parsedRecords.length} books via CSV catalog` })
-        });
+        this.logActivity(`Imported ${parsedRecords.length} books via CSV catalog`);
 
-        await this.loadState();
+        this.saveState();
         this.closeModal();
         this.updateUI();
         this.showToast(`Imported ${parsedRecords.length} books successfully`, "success");
@@ -1041,10 +1072,9 @@ const App = {
   },
 
   // Backup state to a local JSON file download
-  async backupDatabase() {
+  backupDatabase() {
     try {
-      const dbDump = await fetch('/api/backup/download').then(r => r.json());
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbDump));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state));
       const dlAnchorElem = document.createElement('a');
       dlAnchorElem.setAttribute("href", dataStr);
       dlAnchorElem.setAttribute("download", `librisync_backup_${new Date().toISOString().split('T')[0]}.json`);
@@ -1061,18 +1091,21 @@ const App = {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (event) => {
+    reader.onload = (event) => {
       try {
         const importedState = JSON.parse(event.target.result);
         if (importedState.books && importedState.members && importedState.transactions) {
-          await fetch('/api/backup/restore', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(importedState)
-          });
-          
-          await this.loadState();
+          this.state = {
+            books: importedState.books || [],
+            members: importedState.members || [],
+            transactions: importedState.transactions || [],
+            activities: importedState.activities || [],
+            notifications: importedState.notifications || [],
+            theme: importedState.theme || { darkMode: false, accentColor: "#2563EB" }
+          };
+          this.saveState();
           this.updateUI();
+          this.initThemes();
           this.showToast("Database restored successfully!", "success");
         } else {
           this.showToast("Invalid backup snapshot file format!", "error");
@@ -1300,7 +1333,7 @@ const App = {
       const matchesSearch = b.title.toLowerCase().includes(searchVal) || 
                             b.author.toLowerCase().includes(searchVal) || 
                             b.isbn.includes(searchVal) || 
-                            b.rack.toLowerCase().includes(searchVal);
+                            (b.rack || "").toLowerCase().includes(searchVal);
       const matchesCategory = !catVal || b.category === catVal;
       const matchesStatus = !statVal || b.status === statVal;
       return matchesSearch && matchesCategory && matchesStatus;
